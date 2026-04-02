@@ -354,7 +354,7 @@ function FilterBar({
               onChange({
                 ...filters,
                 filterType: newFilterType,
-                device: newFilterType === 'all' ? 'all' : filters.device,
+                device: newFilterType === 'all' ? 'all' : (filters.device === 'all' ? 'device-1' : filters.device),
               })
             }}
             className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400 cursor-pointer"
