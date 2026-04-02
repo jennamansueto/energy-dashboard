@@ -487,7 +487,7 @@ function getFilteredData(appliedFilters: FilterState) {
     curr.actual < prev.actual ? curr : prev
   )
   const variance = peakDemand - Math.min(...actualValues)
-  const variancePct = ((variance / peakDemand) * 100).toFixed(1)
+  const variancePct = ((variance / maxCapacity) * 100).toFixed(1)
 
   const filteredDemandStats = [
     { value: `${avgDemand} kW`, label: 'Avg Demand' },
