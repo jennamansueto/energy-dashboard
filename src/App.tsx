@@ -240,7 +240,7 @@ function DemandAnalysisRow({ label, value }: { label: string; value: string }) {
 
 function App() {
   return (
-    <div className="flex min-h-screen bg-[#F8FAF9] font-['Inter']">
+    <div className="flex min-h-screen bg-[#F8FAF9] font-sans">
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <div className="p-5 space-y-5">
