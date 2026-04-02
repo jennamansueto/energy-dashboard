@@ -211,6 +211,7 @@ function PieLegendItem({ color, name }: { color: string; name: string }) {
 
 function DeviceStatusRow({
   device,
+  status,
   consumption,
 }: {
   device: string
@@ -220,7 +221,12 @@ function DeviceStatusRow({
   return (
     <div className="flex items-center justify-between px-2 py-2 rounded-lg bg-[#F1F5F4]/50">
       <span className="text-xs text-gray-800">{device}</span>
-      <span className="text-xs font-medium text-gray-800">{consumption}</span>
+      <div className="flex items-center gap-2">
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+          status === 'Online' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+        }`}>{status}</span>
+        <span className="text-xs font-medium text-gray-800">{consumption}</span>
+      </div>
     </div>
   )
 }
