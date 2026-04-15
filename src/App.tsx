@@ -347,11 +347,16 @@ function FilterDropdown({
           size={14}
           className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
         />
-        {renderSelected && selectedOption && (
-          <div className="absolute inset-0 flex items-center px-3 pointer-events-none bg-white border border-gray-200 rounded-lg">
-            {renderSelected(selectedOption)}
-          </div>
-        )}
+        {(() => {
+          if (!renderSelected || !selectedOption) return null
+          const rendered = renderSelected(selectedOption)
+          if (!rendered) return null
+          return (
+            <div className="absolute inset-0 flex items-center px-3 pointer-events-none bg-white border border-gray-200 rounded-lg">
+              {rendered}
+            </div>
+          )
+        })()}
       </div>
     </div>
   )
