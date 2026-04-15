@@ -224,7 +224,7 @@ function getDeviceMetrics(device: DeviceData) {
   const lowDemand = Math.min(...demandValues)
   const lowTime = device.demandData.find((d) => d.actual === lowDemand)?.time ?? ''
   const variance = peakDemand - lowDemand
-  const variancePct = ((variance / lowDemand) * 100).toFixed(1)
+  const variancePct = ((variance / maxCapacity) * 100).toFixed(1)
 
   return {
     metricCards: [
