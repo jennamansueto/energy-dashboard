@@ -89,6 +89,23 @@ const fmt = (n: number, digits = 1) =>
   n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })
 const fmtInt = (n: number) => Math.round(n).toLocaleString('en-US')
 
+/** Split `total` into integer parts proportional to `weights`, preserving the sum (largest remainder). */
+function allocate(total: number, weights: number[]): number[] {
+  const weightSum = weights.reduce((a, b) => a + b, 0)
+  const exact = weights.map((w) => (total * w) / weightSum)
+  const floored = exact.map(Math.floor)
+  let remainder = total - floored.reduce((a, b) => a + b, 0)
+  const order = exact
+    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+    .sort((a, b) => b.frac - a.frac)
+  for (const { i } of order) {
+    if (remainder <= 0) break
+    floored[i] += 1
+    remainder -= 1
+  }
+  return floored
+}
+
 function resample(values: number[], count: number): number[] {
   if (count === values.length) return values
   return Array.from({ length: count }, (_, i) => {
@@ -105,22 +122,26 @@ export function getDashboardData(filters: DashboardFilters): DashboardData {
     filters.filterType === 'individual' ? devices.find((d) => d.id === filters.deviceId) : undefined
   const scopeShare = device ? device.share : 1
   const modeFactor = filters.dataMode === 'historical' ? 0.94 : 1
-  const kwhTotal = BASE_TOTAL_KWH * scopeShare * period.days * modeFactor
+  const kwhTotal = Math.round(BASE_TOTAL_KWH * scopeShare * period.days * modeFactor)
   const kva = BASE_KVA * scopeShare * modeFactor
   const kvar = BASE_KVAR * scopeShare * modeFactor
   const pf = device ? 0.88 + device.share * 0.2 : 0.92
   const kwhConsumed = 8932.4 * scopeShare * period.days * modeFactor
 
   const scoped = device ? [device] : devices
+  const scopedKwh = allocate(
+    kwhTotal,
+    scoped.map((d) => d.share),
+  )
   const pieData = scoped.map((d, i) => ({
     name: device ? `${d.name} (${d.location})` : d.name,
-    value: Math.round(kwhTotal * (device ? 1 : d.share)),
-    color: pieColors[devices.indexOf(d) % pieColors.length] ?? pieColors[i],
+    value: scopedKwh[i],
+    color: pieColors[devices.indexOf(d) % pieColors.length],
   }))
-  const deviceStatus = scoped.slice(0, device ? 1 : 3).map((d) => ({
+  const deviceStatus = scoped.slice(0, device ? 1 : 3).map((d, i) => ({
     device: device ? `${d.name} - ${d.location}` : d.name,
     status: d.status,
-    consumption: `${fmtInt(kwhTotal * (device ? 1 : d.share))} kWh`,
+    consumption: `${fmtInt(scopedKwh[i])} kWh`,
   }))
 
   const times =
@@ -169,7 +190,7 @@ export function getDashboardData(filters: DashboardFilters): DashboardData {
       { label: 'Low Demand Time', value: `${times[lowIdx]} (${fmtInt(low)} kW)` },
       {
         label: 'Demand Variance',
-        value: `${fmtInt(peak - low)} kW (${peak ? fmt(((peak - low) / peak) * 100) : '0.0'}%)`,
+        value: `${fmtInt(peak - low)} kW (${maxDemand ? fmt(((peak - low) / maxDemand) * 100) : '0.0'}%)`,
       },
     ],
     scopeDescription: device ? `${device.name} (${device.location})` : 'all live devices',
