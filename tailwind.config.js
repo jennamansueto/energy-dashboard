@@ -6,7 +6,7 @@ export default {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	fontFamily: {
-  		sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  		sans: ['Arial', 'Helvetica Neue', 'Helvetica', 'sans-serif'],
   	},
   	extend: {
   		borderRadius: {
